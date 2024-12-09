@@ -18,9 +18,9 @@ screen = Region(App("Roblox").focusedWindow())
 #Proccess
 def Shake():
     while True:
-        if exists(Pattern("1732982852570.png").similar(0.50)):
+        if exists(Pattern("shake.png").similar(0.50)):
             try:
-                click(Pattern("1732982852570.png").similar(0.50)) 
+                click(Pattern("shake.png").similar(0.50)) 
             except:
                 pass
             wait(Latency)
@@ -32,8 +32,8 @@ def Shake():
     return True
 
 while(ch.hasWindow() and running):   
-    if exists("1732982595481.png"):
-        click("1732982595481.png")
+    if exists("robloxtab.png"):
+        click("robloxtab.png")
     else:
         print()
     mouseMove(30,100)
