@@ -13,7 +13,8 @@ def runHotKey(event):
 Env.addHotkey("x",KeyModifier.CTRL,runHotKey)    
 isShaking = False
 isCatching = False
-ch = switchApp("Roblox")
+r = switchApp("Roblox")
+ch = App("Roblox")
 screen = Region(App("Roblox").focusedWindow())
 #Proccess
 def Shake():
@@ -26,12 +27,12 @@ def Shake():
             wait(Latency)
         else:
             print("FAILED")
-            isShaking = True
+            isShaking = False
             return True
             break
     return True
 
-while(ch.hasWindow() and running):   
+while(running):   
     if exists("robloxtab.png"):
         click("robloxtab.png")
     else:
