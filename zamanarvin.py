@@ -23,7 +23,7 @@ def find_color(color_lower, color_upper):
         #also ahk can do this in like one line XD
 
     except Exception as e:
-        print("Exception at find_color {}".format(e)")
+        print("Exception at find_color {}".format(e))
         return None
 running = True
 lower_bound = (88,71,64)
