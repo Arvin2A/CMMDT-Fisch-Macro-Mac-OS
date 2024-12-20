@@ -1,8 +1,8 @@
 import time
 from java.lang import System 
 from sikuli import *
-from org.opencv.core import Mat, Scalar
-from org.opencv.imgcodecs import *
+#from org.opencv.core import Mat, Scalar
+#from org.opencv.imgcodecs import *
 from org.opencv.imgproc import *
 from java.awt.image import BufferedImage
 def find_color(color_lower, color_upper):
