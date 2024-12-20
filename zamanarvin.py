@@ -24,7 +24,7 @@ def find_color(color_lower, color_upper):
 
     except Exception as e:
         print("Exception at find_color {}".format(e)")
-    return None
+        return None
 running = True
 lower_bound = (88,71,64)
 upper_bound = (94,77,70)
