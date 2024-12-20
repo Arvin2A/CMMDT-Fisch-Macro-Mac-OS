@@ -36,13 +36,14 @@ def runHotKey(event):
     global running
     print("pressedhotkey")
     running = False
-#In this case, this is CTRL+X which is if you want to stop the program (stop after any sequence, not in between)
+#In this case, this is CTRL+X which is if you want to stop the program after the current loop
 Env.addHotkey("x",KeyModifier.CTRL,runHotKey)    
 isShaking = False
 isCatching = False
 r = switchApp("Roblox")
 ch = App("Roblox")
 screen = Region(App("Roblox").focusedWindow())
+print("The size of the roblox window is {}x{}, you need 1440x900".format(screen.w,screen.h))
 #Proccess
 def timeToHold(speed,distance,acceleration):
     acceleration_time = speed / acceleration
