@@ -6,6 +6,25 @@ from org.opencv.imgcodecs import Imgcodecs
 from org.opencv.imgproc import Imgproc
 from java.awt.image import BufferedImage
 #Core.loadLibrary(Core.NATIVE_LIBRARY_NAME)
+running = True
+lower_bound = (88,71,64)
+upper_bound = (94,77,70)
+Settings.MoveMouseDelay = 0
+#How much time you want for the next shake. Ex. how much time you think will take to catch
+TimeEachLoop = 5
+Latency = 0.5 # this is if ur computer is very laggy, mine is so it is half a second for each shake
+def runHotKey(event):
+    global running
+    print("pressedhotkey")
+    running = False
+#In this case, this is CTRL+X which is if you want to stop the program (stop after any sequence, not in between)
+Env.addHotkey("x",KeyModifier.CTRL,runHotKey)    
+isShaking = False
+isCatching = False
+r = switchApp("Roblox")
+ch = App("Roblox")
+screen = Region(App("Roblox").focusedWindow())
+#Proccess-------------------------------------------------------------------------------------------------------------------
 def find_color(color_lower, color_upper):
     scren = Screen()
     Nscreen = scren.capture(scren.getBounds())
@@ -36,25 +55,6 @@ def find_color(color_lower, color_upper):
     except Exception as e:
         print("it did NOT work")
     return None
-running = True
-lower_bound = (88,71,64)
-upper_bound = (94,77,70)
-Settings.MoveMouseDelay = 0
-#How much time you want for the next shake. Ex. how much time you think will take to catch
-TimeEachLoop = 5
-Latency = 0.5 # this is if ur computer is very laggy, mine is so it is half a second for each shake
-def runHotKey(event):
-    global running
-    print("pressedhotkey")
-    running = False
-#In this case, this is CTRL+X which is if you want to stop the program (stop after any sequence, not in between)
-Env.addHotkey("x",KeyModifier.CTRL,runHotKey)    
-isShaking = False
-isCatching = False
-r = switchApp("Roblox")
-ch = App("Roblox")
-screen = Region(App("Roblox").focusedWindow())
-#Proccess
 def timeToHold(speed,distance,acceleration):
     acceleration_time = speed / acceleration
     acceleration_distance = 0.5 * acceleration * acceleration_time**2
