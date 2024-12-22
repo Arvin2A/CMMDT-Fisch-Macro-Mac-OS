@@ -1,30 +1,41 @@
 import time
 from java.lang import System 
 from sikuli import *
-#from org.opencv.core import Mat, Scalar
-#from org.opencv.imgcodecs import *
-from org.opencv.imgproc import *
+from org.opencv.core import Mat, Scalar, Core, CvType, Size
+from org.opencv.imgcodecs import Imgcodecs
+from org.opencv.imgproc import Imgproc
 from java.awt.image import BufferedImage
+#Core.loadLibrary(Core.NATIVE_LIBRARY_NAME)
 def find_color(color_lower, color_upper):
     scren = Screen()
     Nscreen = scren.capture(scren.getBounds())
     
     try:
-        buffered_image = screen.getImage() 
-        mat_image = Mat() # convert to gray (idk why cv2 want to be gray but ok)
-        cvtColor(buffered_image, mat_image, COLOR_RGB2BGR) 
-        img = imread(image_path) 
-        hsv = cvtColor(img, COLOR_BGR2HSV)
-        mask = inRange(hsv, Scalar(color_lower), Scalar(color_upper)) # Scalar basically BGR format writing ex.  bgr(0,0,255)
-        nonzero = cv2.findNonZero(mask)
-        if nonzero is not None:
-            x, y = nonzero[0, 0]
+        buffered_image = scren.getImage() 
+        
+        width = buffered_image.getWidth()
+        height = buffered_image.getHeight()
+        
+        mat_image = Mat(height, width, CvType.CV_8UC3) # convert to gray (idk why cv2 want to be gray but ok)
+        for x in range(width):
+            for y in range(height):
+                color = buffered_image.getRGB(x,y)
+                
+        lower_bound = Scalar(color_lower[0], color_lower[1], color_lower[2]) #Color range
+        upper_bound = Scalar(color_upper[0], color_upper[1], color_upper[2])#Color range
+        mask = Mat()
+        Core.inRange(mat_image, lower_bound, upper_bound, mask)
+        nonzero = Core.findNonZero(mask, pts)
+        pts = []
+        if pts:
+            point = pts[0]
+            x,v = point.x, point,y
             return x, y # bro really had to do 5 side quests to finally return this 
         #also ahk can do this in like one line XD
 
     except Exception as e:
-        print("Exception at find_color {}".format(e))
-        return None, None
+        print("it did NOT work")
+    return None
 running = True
 lower_bound = (88,71,64)
 upper_bound = (94,77,70)
@@ -36,14 +47,13 @@ def runHotKey(event):
     global running
     print("pressedhotkey")
     running = False
-#In this case, this is CTRL+X which is if you want to stop the program after the current loop
+#In this case, this is CTRL+X which is if you want to stop the program (stop after any sequence, not in between)
 Env.addHotkey("x",KeyModifier.CTRL,runHotKey)    
 isShaking = False
 isCatching = False
 r = switchApp("Roblox")
 ch = App("Roblox")
 screen = Region(App("Roblox").focusedWindow())
-print("The size of the roblox window is {}x{}, you need 1440x900".format(screen.w,screen.h))
 #Proccess
 def timeToHold(speed,distance,acceleration):
     acceleration_time = speed / acceleration
@@ -72,12 +82,59 @@ def Catch():
         else:
             print("Image Not Found : 1")
             break
-        x,y = find_color()
+        color_position = find_color(lower_bound, upper_bound)
+        if color_position is None:
+            print("Color not found!")
+            break
+        else:
+            current_x,y = color_position
         if current_x > userX:
             dist = current_x - userX
             print(dist)
             speed = dist/0.1
             initialspeed = dist/11
+            hello = timeToHold(speed,dist,speed-initialspeed/0.1)
+            mouseDown(Button.LEFT)
+            wait(hello)
+            mouseUp(Button.LEFT)
+            print(hello)
+            Ranges.append(dist)
+        elif userX > current_x:
+            pass           
+        else:
+            pass
+    return Ranges    
+def Shake():
+    while True:
+        if exists(Pattern("shake.png").similar(0.50)):
+            try:
+                click(Pattern("shake.png").similar(0.50)) 
+            except:
+                pass
+            wait(Latency)
+        else:
+            print("FAILED")
+            isShaking = False
+            return True
+            break
+    return True
+
+while(running):   
+    if exists("robloxtab.png"):
+        click("robloxtab.png")
+    else:
+        print()
+    mouseMove(30,100)
+    mouseDown(Button.LEFT)
+    wait(1)
+    mouseUp(Button.LEFT)
+    wait(0.5)
+    isShaking = True
+    hasFinishedShake = Shake()
+    if hasFinishedShake == True:
+        wait(0.5)
+        print("User Is Catching...")
+        wait(Pattern("InventoryNum.png").similar(0.85),3600)
             hello = timeToHold(speed,dist,speed-initialspeed/0.1)
             mouseDown(Button.LEFT)
             wait(hello)
