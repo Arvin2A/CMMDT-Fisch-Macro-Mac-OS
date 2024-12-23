@@ -49,9 +49,6 @@ def find_color(color_lower, color_upper):
 running = True
 lower_bound = (88,71,64)
 upper_bound = (94,77,70)
-color_position = find_color(lower_bound, upper_bound)
-print(color_position)
-exit()
 Settings.MoveMouseDelay = 0
 #How much time you want for the next shake. Ex. how much time you think will take to catch
 TimeEachLoop = 5
