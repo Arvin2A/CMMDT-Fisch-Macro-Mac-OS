@@ -1,14 +1,57 @@
 import time
-from java.lang import System 
+from java.lang import System
+from nu.pattern import OpenCV
+OpenCV.loadShared()
 from sikuli import *
-from org.opencv.core import Mat, Scalar, Core, CvType, Size
+from org.opencv.core import Mat, Scalar, Core, CvType, Size, MatOfPoint
 from org.opencv.imgcodecs import Imgcodecs
 from org.opencv.imgproc import Imgproc
 from java.awt.image import BufferedImage
-#Core.loadLibrary(Core.NATIVE_LIBRARY_NAME)
+def find_color(color_lower, color_upper):
+    scren = Screen()
+    Nscreen = scren.capture(scren.getBounds())
+    
+    try:
+        buffered_image = scren.getImage().get()     
+        height = buffered_image.getHeight() 
+        width = buffered_image.getWidth()
+        #print(CvType.CV_8UC3)
+        mat_image = Mat(height, width, CvType.CV_8UC3)
+        #imgpixels = buffered_image.getRGB(0,0, float(width), float(height), None, 0, float(width))
+        #mat_image.put(0,0,imgpixels)
+        for x in range(width):
+            for y in range(height):
+                color = buffered_image.getRGB(x,y)
+                b = (color >> 16) & 0xFF  
+                g = (color >> 8) & 0xFF  
+                r = color & 0xFF
+                data = [float(b),float(g),float(r)]
+                #print(data)
+                mat_image.put(y,x,data)
+        lower_bound = Scalar(color_lower[0], color_lower[1], color_lower[2]) #Color range
+        upper_bound = Scalar(color_upper[0], color_upper[1], color_upper[2])#Color range
+        mask = Mat()
+        Core.inRange(mat_image, lower_bound, upper_bound, mask)
+        pts = MatOfPoint()
+        Core.findNonZero(mask, pts)
+
+        detectedlocation = []
+
+        if pts.rows()>0:
+            point = pts.toList()[0]
+            x, y = point.x, point,y
+            return x, y # bro really had to do 5 side quests to finally return this 
+        #also ahk can do this in like one line XD
+
+    except Exception as e:
+        print("it did NOT work: {}".format(e))
+    return None,None
 running = True
 lower_bound = (88,71,64)
 upper_bound = (94,77,70)
+color_position = find_color(lower_bound, upper_bound)
+print(color_position)
+exit()
 Settings.MoveMouseDelay = 0
 #How much time you want for the next shake. Ex. how much time you think will take to catch
 TimeEachLoop = 5
@@ -24,37 +67,7 @@ isCatching = False
 r = switchApp("Roblox")
 ch = App("Roblox")
 screen = Region(App("Roblox").focusedWindow())
-#Proccess-------------------------------------------------------------------------------------------------------------------
-def find_color(color_lower, color_upper):
-    scren = Screen()
-    Nscreen = scren.capture(scren.getBounds())
-    
-    try:
-        buffered_image = scren.getImage() 
-        
-        width = buffered_image.getWidth()
-        height = buffered_image.getHeight()
-        
-        mat_image = Mat(height, width, CvType.CV_8UC3) # convert to gray (idk why cv2 want to be gray but ok)
-        for x in range(width):
-            for y in range(height):
-                color = buffered_image.getRGB(x,y)
-                
-        lower_bound = Scalar(color_lower[0], color_lower[1], color_lower[2]) #Color range
-        upper_bound = Scalar(color_upper[0], color_upper[1], color_upper[2])#Color range
-        mask = Mat()
-        Core.inRange(mat_image, lower_bound, upper_bound, mask)
-        nonzero = Core.findNonZero(mask, pts)
-        pts = []
-        if pts:
-            point = pts[0]
-            x,v = point.x, point,y
-            return x, y # bro really had to do 5 side quests to finally return this 
-        #also ahk can do this in like one line XD
-
-    except Exception as e:
-        print("it did NOT work")
-    return None
+#Proccess
 def timeToHold(speed,distance,acceleration):
     acceleration_time = speed / acceleration
     acceleration_distance = 0.5 * acceleration * acceleration_time**2
