@@ -7,6 +7,24 @@ from org.opencv.core import Mat, Scalar, Core, CvType, Size, MatOfPoint
 from org.opencv.imgcodecs import Imgcodecs
 from org.opencv.imgproc import Imgproc
 from java.awt.image import BufferedImage
+Settings.MoveMouseDelay = 0
+#How much time you want for the next shake. Ex. how much time you think will take to catch
+TimeEachLoop = 5
+Latency = 0.5 # this is if ur computer is very laggy, mine is so it is half a second for each shake
+def runHotKey(event):
+    global running
+    print("pressedhotkey")
+    running = False
+#In this case, this is CTRL+X which is if you want to stop the program (stop after any sequence, not in between)
+Env.addHotkey("x",KeyModifier.CTRL,runHotKey)    
+isShaking = False
+isCatching = False
+r = switchApp("Roblox")
+ch = App("Roblox")
+screen = Region(App("Roblox").focusedWindow())
+print("NOTE***YOUR RESOLUTION MUST BE 1440x900 FOR THIS TO WORK! IF NOT, SELECT A BIGGER RESOLUTION AND SCALE THE ROBLOX WINDOW TO 1440x900")
+#DETERMINE YOUR RESOLUTION HERE:
+print(str(screen.w)+"x"+str(screen.h))
 def find_color(color_lower, color_upper):
     scren = Screen()
     Nscreen = scren.capture(scren.getBounds())
@@ -49,21 +67,6 @@ def find_color(color_lower, color_upper):
 running = True
 lower_bound = (88,71,64)
 upper_bound = (94,77,70)
-Settings.MoveMouseDelay = 0
-#How much time you want for the next shake. Ex. how much time you think will take to catch
-TimeEachLoop = 5
-Latency = 0.5 # this is if ur computer is very laggy, mine is so it is half a second for each shake
-def runHotKey(event):
-    global running
-    print("pressedhotkey")
-    running = False
-#In this case, this is CTRL+X which is if you want to stop the program (stop after any sequence, not in between)
-Env.addHotkey("x",KeyModifier.CTRL,runHotKey)    
-isShaking = False
-isCatching = False
-r = switchApp("Roblox")
-ch = App("Roblox")
-screen = Region(App("Roblox").focusedWindow())
 #Proccess
 def timeToHold(speed,distance,acceleration):
     acceleration_time = speed / acceleration
