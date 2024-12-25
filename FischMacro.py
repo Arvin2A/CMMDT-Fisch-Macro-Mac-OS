@@ -1,5 +1,3 @@
-#PUSH CHANGES WITH PERMISSION
-import time
 from java.lang import System
 from nu.pattern import OpenCV
 OpenCV.loadShared()
@@ -8,9 +6,31 @@ from org.opencv.core import Mat, Scalar, Core, CvType, Size, MatOfPoint
 from org.opencv.imgcodecs import Imgcodecs
 from org.opencv.imgproc import Imgproc
 from java.awt.image import BufferedImage
+Settings.MoveMouseDelay = 0
+#How much time you want for the next shake. Ex. how much time you think will take to catch
+TimeEachLoop = 5
+Latency = 0.5 # this is if ur computer is very laggy, mine is so it is half a second for each shake
+running = True
+lower_bound = (88,71,64)
+upper_bound = (94,77,70)
+def runHotKey(event):
+    global running
+    print("pressedhotkey")
+    running = False
+#In this case, this is CTRL+X which is if you want to stop the program (stop after any sequence, not in between)
+Env.addHotkey("x",KeyModifier.CTRL,runHotKey)    
+isShaking = False
+isCatching = False
+r = switchApp("Roblox")
+ch = App("Roblox")
+screen = Region(App("Roblox").focusedWindow())
+print("NOTE***YOUR RESOLUTION MUST BE 1440x900 FOR THIS TO WORK! IF NOT, SELECT A BIGGER RESOLUTION AND SCALE THE ROBLOX WINDOW TO 1440x900")
+#DETERMINE YOUR RESOLUTION HERE:
+print(str(screen.w)+"x"+str(screen.h))
+#Process
 def find_color(color_lower, color_upper):
     scren = Screen()
-    Nscreen = scren.capture(scren.getBounds())
+    Nscreen = scren.capture(screen.x,screen.y+400,screen.w,screen.h-400)
     
     try:
         buffered_image = scren.getImage().get()     
@@ -18,14 +38,15 @@ def find_color(color_lower, color_upper):
         width = buffered_image.getWidth()
         #print(CvType.CV_8UC3)
         mat_image = Mat(height, width, CvType.CV_8UC3)
-        #imgpixels = buffered_image.getRGB(0,0, float(width), float(height), None, 0, float(width))
-        #mat_image.put(0,0,imgpixels)
+
+        raster = buffered_image.getRaster()
         for x in range(width):
             for y in range(height):
-                color = buffered_image.getRGB(x,y)
-                b = (color >> 16) & 0xFF  
-                g = (color >> 8) & 0xFF  
-                r = color & 0xFF
+                #color = buffered_image.getRGB(x,y)
+                r,g,b = raster.getPixel(x,y,None)[:3]
+                #b = (color >> 16) & 0xFF  
+                #g = (color >> 8) & 0xFF  
+                #r = color & 0xFF
                 data = [float(b),float(g),float(r)]
                 #print(data)
                 mat_image.put(y,x,data)
@@ -40,32 +61,18 @@ def find_color(color_lower, color_upper):
 
         if pts.rows()>0:
             point = pts.toList()[0]
-            x, y = point.x, point,y
-            return x, y # bro really had to do 5 side quests to finally return this 
+            print(point.x)
+            x, y = float(point.x), float(point.y)         
+            return int(x), int(y)  
+        else:
+            print("No pixel of color in range!")
         #also ahk can do this in like one line XD
 
     except Exception as e:
         print("it did NOT work: {}".format(e))
     return None,None
-running = True
-lower_bound = (88,71,64)
-upper_bound = (94,77,70)
-Settings.MoveMouseDelay = 0
-#How much time you want for the next shake. Ex. how much time you think will take to catch
-TimeEachLoop = 5
-Latency = 0.5 # this is if ur computer is very laggy, mine is so it is half a second for each shake
-def runHotKey(event):
-    global running
-    print("pressedhotkey")
-    running = False
-#In this case, this is CTRL+X which is if you want to stop the program (stop after any sequence, not in between)
-Env.addHotkey("x",KeyModifier.CTRL,runHotKey)    
-isShaking = False
-isCatching = False
-r = switchApp("Roblox")
-ch = App("Roblox")
-screen = Region(App("Roblox").focusedWindow())
-#Proccess
+#print(find_color(lower_bound,upper_bound))
+#exit()
 def timeToHold(speed,distance,acceleration):
     acceleration_time = speed / acceleration
     acceleration_distance = 0.5 * acceleration * acceleration_time**2
@@ -132,7 +139,10 @@ def Shake():
 
 while(running):   
     if exists("robloxtab.png"):
-        click("robloxtab.png")
+        try:
+            click("robloxtab.png")
+        except:
+            pass
     else:
         print()
     mouseMove(30,100)
