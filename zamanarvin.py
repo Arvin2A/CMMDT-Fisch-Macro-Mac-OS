@@ -8,10 +8,12 @@ from org.opencv.imgcodecs import Imgcodecs
 from org.opencv.imgproc import Imgproc
 from java.awt.image import BufferedImage
 Settings.MoveMouseDelay = 0
+Settings.ActionLogs=0
+Debug.on(3)
 #How much time you want for the next shake. Ex. how much time you think will take to catch
 TimeEachLoop = 5
 Latency = 0.5 # this is if ur computer is very laggy, mine is so it is half a second for each shake
-running = True
+running = True            
 #COLORS FOR FISCH DETECTION (WHITE_BAR, GREY_FISH_BAR)
 Sets = {
     "Color_Fish" : {"0x434b5b": 3, "0x4a4a5c": 4, "0x47515d": 4},  
@@ -41,10 +43,8 @@ print("NOTE***YOUR RESOLUTION MUST BE 1440x875 FOR THIS TO WORK! IF NOT, SELECT 
 #Process
 def find_color(color_lower, color_upper, region): 
     screen = Screen()
-    timeNow = time.time()
     try:
         captured_image = screen.capture(region)
-        region_x, region_y = screen_region.getX(), screen_region.getY()
         buffered_image = captured_image.getImage()   
         height = buffered_image.getHeight() 
         width = buffered_image.getWidth()
@@ -53,7 +53,6 @@ def find_color(color_lower, color_upper, region):
         raster = buffered_image.getRaster()
         for x in range(width):
             for y in range(height):
-                #color = buffered_image.getRGB(x,y)
                 r,g,b = raster.getPixel(x,y,None)[:3]
                 data = [float(b),float(g),float(r)]
                 mat_image.put(y,x,data)
@@ -71,16 +70,15 @@ def find_color(color_lower, color_upper, region):
             x, y = float(point.x), float(point.y)   
             absolute_x = region.x + x
             absolute_y = region.y + y
-            print(time.time()-timeNow)
             return int(absolute_x), int(absolute_y)
         else:
             print("No pixel of color in range!")
-            print(time.time()-timeNow)
             #i have to make my own function and meanwhile ahk has this already
     except Exception as e:
         print("it did NOT work: {}".format(e))
     return 0,0
 def search(target, region):
+    timeNow = time.time()
     for color_hex, variation in target.items():
         color_rgb = (
             int(color_hex[2:4], 16),  # R
@@ -101,15 +99,17 @@ def search(target, region):
         
         x,y = find_color(lower_bound, upper_bound, region)
         if x != 0:
+            print("TIME ELAPSED: {:.2f} ms".format((time.time()-timeNow)*1000))
+            print("----------------- FOUND PIXEL! -------------------")
             return x,y
     return 0,0
 
 def timeToHold(pixel,scale_factor):
     data = [
-        [0, 0], [16, 0], [132, 1], [217, 5], [365, 29], [450, 54], 
-        [534, 91], [632, 151], [736, 234], [817, 310], [900, 382], 
-        [997, 469], [1081, 541], [1164, 613], [1250, 686], 
-        [1347, 711], [1448, 721], [1531, 724], [1531, 9999]
+        [0, 0], [16, 0], [132, 50], [217, 100], [365, 200], [450, 320], 
+        [534, 375], [632, 440], [736, 500], [817, 600], [900, 700], 
+        [997, 770], [1081, 835], [1164, 900], [1250, 2200], 
+        [1347, 2400], [1448, 2600], [1531, 2800], [1531, 9999]
     ]
     
     for pair in data:
@@ -132,35 +132,35 @@ def timeToHold(pixel,scale_factor):
 
     return hold
 def Catch():
+    Control = 0
+    ControlResult = round((UserResolution[0] / 800) * ((320 * Control) + 97))
     i = 0
-    Ranges = []
     print("Iteration",i) 
     while True:
         i += 1
         targetbarColor = Sets["Color_Fish"]
         userbarColor = Sets["Color_White"]
-        target_x,target_y = search(targetbarColor, reel_area)
-        bar_x,bar_y = search(userbarColor, reel_area)
-        
+        target_x,target_y = search(targetbarColor, ReelingRegion)
+        bar_x,bar_y = search(userbarColor, ReelingRegion) 
+        if bar_x == 0:            
+            bar_x,bar_y = search(Sets["Color_Bar"], ReelingRegion)
+            bar_x += round(ControlResult * 0.5)
         if target_x != 0:
-            if target_x> bar_x:
+            if target_x > bar_x:
                 dist = target_x - bar_x
                 print(dist)
-                #speed = dist/0.1
-                #initialspeed = dist/11
-                hello = timeToHold(dist)
+                skibidirizz = timeToHold(dist,sf[0])
                 mouseDown(Button.LEFT)
-                wait(hello)
+                wait(skibidirizz/1000)
                 mouseUp(Button.LEFT)
-                print(hello)
-                Ranges.append(dist)
             elif bar_x > target_x:
-                pass           
+                pass
             else:
                 pass
         else:
+            print("Target value not found")
             break
-    return Ranges    
+    return  
 def Shake():
     while True:
         if exists(Pattern("shake.png").similar(0.50)):
@@ -191,5 +191,3 @@ while(running):
         wait(0.5)
         print("User Is Catching...")
         DetectionConsistency = Catch()
-        print(DetectionConsistency)
-        wait(Pattern("InventoryNum.png").similar(0.85),3600)
