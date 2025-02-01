@@ -197,7 +197,6 @@ while(running):
     wait(0.5)
     isShaking = True
     hasFinishedShake = Shake()
-    exit()
     if hasFinishedShake == True:
         wait(0.5)
         print("User Is Catching...")
