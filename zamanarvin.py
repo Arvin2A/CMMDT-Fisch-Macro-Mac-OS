@@ -7,7 +7,7 @@ from org.opencv.core import Mat, Scalar, Core, CvType, Size, MatOfPoint
 from org.opencv.imgcodecs import Imgcodecs
 from org.opencv.imgproc import Imgproc
 from java.awt.image import BufferedImage
-Settings.MoveMouseDelay = 0
+Settings.MoveMouseDelay = 0.01
 Settings.ActionLogs=0
 Debug.on(3)
 #How much time you want for the next shake. Ex. how much time you think will take to catch
@@ -33,10 +33,16 @@ ch = App("Roblox")
 #SCALING SIZES FOR COMPATIBILITY
 RobloxWindowRegion = Region(App("Roblox").focusedWindow())
 ReferenceResolution = [1440,875]
-UserResolution = [RobloxWindowRegion.w,RobloxWindowRegion.h]
-sf = [round(1440/RobloxWindowRegion.w,4),round(900/RobloxWindowRegion.h,4)]
+UR = [RobloxWindowRegion.w,RobloxWindowRegion.h]
+sf = [float(UR[0])/1440.0,float(UR[1])/900.0]
 #REGIONS:
-ReelingRegion = Region(int(404*sf[0]),int(775*sf[1]),int(613*sf[0]),int(1*sf[1]))
+print(UR[0], UR[1])
+print(sf[0],sf[1])
+mainfactor = (float(UR[0]) * float(UR[1])) / (1400 * 900)
+print(mainfactor)
+
+#Settings.AlwaysResize = mainfactor
+ReelingRegion = Region(int(404.0*sf[0]),int(775.0*sf[1]),int(613.0*sf[0]),int(3.0*sf[1]))
 print("NOTE***YOUR RESOLUTION MUST BE 1440x875 FOR THIS TO WORK! IF NOT, SELECT A BIGGER RESOLUTION AND SCALE THE ROBLOX WINDOW TO 1440x900")
 #DETERMINE YOUR RESOLUTION HERE:
 #NOTE* FOR USERS WITH A 1440x900 RESOLUTION, 1440x875 IS JUST NO FULLSCREEN BUT FILLS ENTIRE SCREEN
@@ -136,6 +142,9 @@ def Catch():
     ControlResult = round((UserResolution[0] / 800) * ((320 * Control) + 97))
     i = 0
     print("Iteration",i) 
+    #Maxhold is to hold until the fish is beyond the control range
+    #
+
     while True:
         i += 1
         targetbarColor = Sets["Color_Fish"]
@@ -148,7 +157,7 @@ def Catch():
         if target_x != 0:
             if target_x > bar_x:
                 dist = target_x - bar_x
-                print(dist)
+                print(dist, target_x, bar_x)
                 skibidirizz = timeToHold(dist,sf[0])
                 mouseDown(Button.LEFT)
                 wait(skibidirizz/1000)
@@ -162,22 +171,23 @@ def Catch():
             break
     return  
 def Shake():
-    while True:
-        if exists(Pattern("shake.png").similar(0.50)):
-            try:
-                click(Pattern("shake.png").similar(0.50)) 
-            except:            
+    print(mainfactor)
+    while True:   
+        shake = Pattern(Pattern("newshake.png").similar(0.50)).resize(mainfactor)
+        if exists(shake):
+            try:  
+                click(shake)
+            except:         
                 wait(Latency)
         else:
             print("FAILED")
             isShaking = False
             return True
-            break
     return True
 while(running):   
     if exists("robloxtab.png"):
         try:
-            click("robloxtab.png")
+            click()
         except:
             pass
     mouseMove(30,100)
@@ -187,6 +197,7 @@ while(running):
     wait(0.5)
     isShaking = True
     hasFinishedShake = Shake()
+    exit()
     if hasFinishedShake == True:
         wait(0.5)
         print("User Is Catching...")
