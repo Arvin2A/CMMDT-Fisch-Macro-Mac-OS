@@ -139,7 +139,7 @@ def timeToHold(pixel,scale_factor):
     return hold
 def Catch():
     Control = 0
-    ControlResult = round((UserResolution[0] / 800) * ((320 * Control) + 97))
+    ControlResult = round((UR[0] / 800) * ((320 * Control) + 97))
     i = 0
     print("Iteration",i) 
     #Maxhold is to hold until the fish is beyond the control range
