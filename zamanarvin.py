@@ -173,7 +173,7 @@ def Catch():
 def Shake():
     print(mainfactor)
     while True:   
-        shake = Pattern(Pattern("newshake.png").similar(0.50)).resize(mainfactor)
+        shake = Pattern(Pattern("newshake.png").similar(0.54)).resize(mainfactor)
         if exists(shake):
             try:  
                 click(shake)
