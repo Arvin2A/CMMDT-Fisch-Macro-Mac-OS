@@ -231,7 +231,6 @@ def Shake():
     screen = Screen()
     while True:   
         shake = Pattern(Pattern("better_shake.png").similar(0.50))
-        shake.resize(0.937)
         if exists(shake):
             try:  
                 click(shake)
