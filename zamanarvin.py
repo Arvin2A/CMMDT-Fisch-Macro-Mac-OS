@@ -189,7 +189,7 @@ def Catch():
         if target_x > three_quarter_mark:
             if prev_target_x is not None:
                 # Check if the target is stationary (small movement over time)
-                if abs(target_x - prev_target_x) < 16:  # Small movement threshold
+                if abs(target_x - prev_target_x) < 25:  # Small movement threshold
                     if stationary_start_time is None:
                         stationary_start_time = time.time()
                     # Hold the mouse if stationary for 1 second
