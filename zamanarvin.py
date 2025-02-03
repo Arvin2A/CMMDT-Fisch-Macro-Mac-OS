@@ -155,7 +155,7 @@ def Catch():
     #MaxHold calculation:
     prev_target_x = None
     stationary_start_time = None
-    three_quarter_mark = ReelingRegion.x + (ReelingRegion.w * 0.60)
+    three_quarter_mark = ReelingRegion.x + (ReelingRegion.w * 0.75)
     
     timeout = 1.75
     Control = 0
